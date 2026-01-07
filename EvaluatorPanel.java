@@ -10,41 +10,97 @@ public class EvaluatorPanel extends JFrame {
     
     public EvaluatorPanel(Evaluator evaluator) {
         this.evaluator = evaluator;
-        setTitle("Evaluator Panel - " + evaluator.getName());
-        setSize(600, 500);
-        setLayout(new GridLayout(8, 2, 10, 10));
         
-        add(new JLabel("Select Student:"));
+        setTitle("Evaluator Assessment Panel - " + evaluator.getName());
+        setSize(650, 550);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+        
+        JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
+        mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
+        // Header
+        JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JLabel headerLabel = new JLabel("Presentation Evaluation");
+        headerLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        headerPanel.add(headerLabel);
+        
+        // Form Panel
+        JPanel formPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(8, 8, 8, 8);
+        
+        // Student Selection
+        gbc.gridx = 0; gbc.gridy = 0;
+        formPanel.add(new JLabel("Select Presenter:"), gbc);
+        gbc.gridx = 1; gbc.gridwidth = 2;
         studentCombo = new JComboBox<>();
         loadStudents();
-        add(studentCombo);
+        studentCombo.setPreferredSize(new Dimension(250, 25));
+        formPanel.add(studentCombo, gbc);
         
-        add(new JLabel("Problem Clarity (1-10):"));
-        claritySpinner = new JSpinner(new SpinnerNumberModel(5, 1, 10, 1));
-        add(claritySpinner);
+        // Rubric Scores
+        String[] criteria = {"Problem Clarity", "Methodology", "Results", "Presentation"};
+        JSpinner[] spinners = new JSpinner[4];
         
-        add(new JLabel("Methodology (1-10):"));
-        methodSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 10, 1));
-        add(methodSpinner);
+        for (int i = 0; i < criteria.length; i++) {
+            gbc.gridx = 0; gbc.gridy = i + 1; gbc.gridwidth = 1;
+            formPanel.add(new JLabel(criteria[i] + " (1-10):"), gbc);
+            
+            gbc.gridx = 1;
+            spinners[i] = new JSpinner(new SpinnerNumberModel(5, 1, 10, 1));
+            formPanel.add(spinners[i], gbc);
+            
+            gbc.gridx = 2;
+            JLabel rangeLabel = new JLabel("1=Poor, 10=Excellent");
+            rangeLabel.setForeground(Color.GRAY);
+            rangeLabel.setFont(new Font("Arial", Font.ITALIC, 11));
+            formPanel.add(rangeLabel, gbc);
+        }
         
-        add(new JLabel("Results (1-10):"));
-        resultsSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 10, 1));
-        add(resultsSpinner);
+        claritySpinner = spinners[0];
+        methodSpinner = spinners[1];
+        resultsSpinner = spinners[2];
+        presSpinner = spinners[3];
         
-        add(new JLabel("Presentation (1-10):"));
-        presSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 10, 1));
-        add(presSpinner);
+        // Comments
+        gbc.gridx = 0; gbc.gridy = 5;
+        formPanel.add(new JLabel("Comments:"), gbc);
+        gbc.gridx = 1; gbc.gridwidth = 2; gbc.gridheight = 3;
+        commentArea = new JTextArea(5, 30);
+        commentArea.setLineWrap(true);
+        commentArea.setWrapStyleWord(true);
+        formPanel.add(new JScrollPane(commentArea), gbc);
         
-        add(new JLabel("Comments:"));
-        commentArea = new JTextArea(3, 20);
-        add(new JScrollPane(commentArea));
+        // Button Panel
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         
         JButton evaluateBtn = new JButton("Submit Evaluation");
-        add(evaluateBtn);
+        evaluateBtn.setFont(new Font("Arial", Font.BOLD, 14));
+        evaluateBtn.setBackground(new Color(60, 179, 113));
+        evaluateBtn.setForeground(Color.WHITE);
         
         JButton viewBtn = new JButton("View My Evaluations");
-        add(viewBtn);
+        viewBtn.setFont(new Font("Arial", Font.PLAIN, 12));
         
+        // LOGOUT BUTTON
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        logoutBtn.setBackground(new Color(220, 80, 60));
+        logoutBtn.setForeground(Color.WHITE);
+        
+        buttonPanel.add(evaluateBtn);
+        buttonPanel.add(viewBtn);
+        buttonPanel.add(logoutBtn);
+        
+        // Add to frame
+        mainPanel.add(headerPanel, BorderLayout.NORTH);
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        add(mainPanel);
+        
+        // Actions
         evaluateBtn.addActionListener(e -> {
             Student selected = (Student) studentCombo.getSelectedItem();
             if (selected != null) {
@@ -58,21 +114,43 @@ public class EvaluatorPanel extends JFrame {
                 evaluator.addEvaluation(eval);
                 LoginFrame.allEvaluations.add(eval);
                 
-                JOptionPane.showMessageDialog(this, 
-                    "Evaluation submitted!\n" +
-                    "Student: " + selected.getName() + "\n" +
-                    "Total Score: " + eval.getTotal() + "/40");
+                String message = "<html><div style='text-align: center;'>" +
+                    "<h3>Evaluation Submitted!</h3>" +
+                    "<b>Student:</b> " + selected.getName() + "<br>" +
+                    "<b>Total Score:</b> " + eval.getTotal() + "/40<br>" +
+                    "<b>Average:</b> " + (eval.getTotal()/4.0) + "/10" +
+                    "</div></html>";
+                
+                JOptionPane.showMessageDialog(this, message, "Success", 
+                    JOptionPane.INFORMATION_MESSAGE);
             }
         });
         
         viewBtn.addActionListener(e -> {
             StringBuilder sb = new StringBuilder();
-            sb.append("My Evaluations:\n");
+            sb.append("<html><h3>My Evaluations</h3>");
             for (Evaluation eval : evaluator.getEvaluations()) {
-                sb.append("- ").append(eval.getStudent().getName())
-                  .append(": ").append(eval.getTotal()).append("/40\n");
+                sb.append("<b>").append(eval.getStudent().getName()).append("</b>: ")
+                  .append(eval.getTotal()).append("/40<br>");
             }
-            JOptionPane.showMessageDialog(this, sb.toString());
+            if (evaluator.getEvaluations().isEmpty()) {
+                sb.append("No evaluations submitted yet.");
+            }
+            sb.append("</html>");
+            
+            JOptionPane.showMessageDialog(this, sb.toString(), "Evaluation History", 
+                JOptionPane.INFORMATION_MESSAGE);
+        });
+        
+        // Logout Button
+        logoutBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Return to login page?", "Logout", 
+                JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                dispose();
+                new LoginFrame().setVisible(true);
+            }
         });
         
         setLocationRelativeTo(null);
@@ -85,7 +163,9 @@ public class EvaluatorPanel extends JFrame {
             }
         }
         if (studentCombo.getItemCount() == 0) {
-            studentCombo.addItem(new Student("S001", "Sample Student"));
+            Student sample = new Student("S001", "Sample Student");
+            sample.setResearchTitle("Sample Research");
+            studentCombo.addItem(sample);
         }
     }
 }

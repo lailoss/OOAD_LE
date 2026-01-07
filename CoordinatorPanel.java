@@ -12,6 +12,24 @@ public class CoordinatorPanel extends JFrame {
         setSize(700, 600);
         setLayout(new BorderLayout(10, 10));
         
+        // ========== NAVIGATION BAR ==========
+        JPanel navPanel = new JPanel(new BorderLayout());
+        navPanel.setBackground(new Color(240, 240, 240));
+        navPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        
+        JLabel titleLabel = new JLabel("Coordinator Dashboard");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        
+        // LOGOUT BUTTON (in navigation)
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        logoutBtn.setBackground(new Color(220, 80, 60));
+        logoutBtn.setForeground(Color.WHITE);
+        
+        navPanel.add(titleLabel, BorderLayout.WEST);
+        navPanel.add(logoutBtn, BorderLayout.EAST);
+        
+        // North Panel - Session Creation
         JPanel northPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         northPanel.setBorder(BorderFactory.createTitledBorder("Create New Session"));
         
@@ -30,6 +48,7 @@ public class CoordinatorPanel extends JFrame {
         JButton createSessionBtn = new JButton("Create Session");
         northPanel.add(createSessionBtn);
         
+        // Center Panel - Awards
         JPanel centerPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         centerPanel.setBorder(BorderFactory.createTitledBorder("Award Management"));
         
@@ -45,15 +64,19 @@ public class CoordinatorPanel extends JFrame {
         JButton viewAllBtn = new JButton("View All Data");
         centerPanel.add(viewAllBtn);
         
+        // South Panel - Output
         outputArea = new JTextArea(10, 40);
         outputArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(outputArea);
-        scrollPane.setBorder(BorderFactory.createTitledBorder("Output"));
+        scrollPane.setBorder(BorderFactory.createTitledBorder("Output Log"));
         
-        add(northPanel, BorderLayout.NORTH);
+        // Add all panels
+        add(navPanel, BorderLayout.NORTH);
+        add(northPanel, BorderLayout.WEST);
         add(centerPanel, BorderLayout.CENTER);
         add(scrollPane, BorderLayout.SOUTH);
         
+        // Actions
         createSessionBtn.addActionListener(e -> {
             Session session = new Session(
                 sessionIdField.getText(),
@@ -67,31 +90,37 @@ public class CoordinatorPanel extends JFrame {
         
         bestOralBtn.addActionListener(e -> {
             outputArea.append("\n--- Best Oral Award Calculation ---\n");
+            boolean found = false;
             for (Session s : LoginFrame.allSessions) {
                 if (s.getType().equals("Oral")) {
                     Award award = new Award("Best Oral", s);
                     Student winner = award.calculateWinner(LoginFrame.allEvaluations);
                     if (winner != null) {
                         outputArea.append("🏆 Best Oral: " + winner.getName() + "\n");
-                    } else {
-                        outputArea.append("No students in oral sessions\n");
+                        found = true;
                     }
                 }
+            }
+            if (!found) {
+                outputArea.append("No eligible students for Best Oral award\n");
             }
         });
         
         bestPosterBtn.addActionListener(e -> {
             outputArea.append("\n--- Best Poster Award Calculation ---\n");
+            boolean found = false;
             for (Session s : LoginFrame.allSessions) {
                 if (s.getType().equals("Poster")) {
                     Award award = new Award("Best Poster", s);
                     Student winner = award.calculateWinner(LoginFrame.allEvaluations);
                     if (winner != null) {
                         outputArea.append("🏆 Best Poster: " + winner.getName() + "\n");
-                    } else {
-                        outputArea.append("No students in poster sessions\n");
+                        found = true;
                     }
                 }
+            }
+            if (!found) {
+                outputArea.append("No eligible students for Best Poster award\n");
             }
         });
         
@@ -118,7 +147,19 @@ public class CoordinatorPanel extends JFrame {
             for (Evaluation ev : LoginFrame.allEvaluations) {
                 sb.append("  - ").append(ev).append("\n");
             }
-            JOptionPane.showMessageDialog(this, sb.toString());
+            JOptionPane.showMessageDialog(this, sb.toString(), "System Data", 
+                JOptionPane.INFORMATION_MESSAGE);
+        });
+        
+        // Logout Button Action
+        logoutBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Return to login page?", "Logout", 
+                JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                dispose();
+                new LoginFrame().setVisible(true);
+            }
         });
         
         setLocationRelativeTo(null);

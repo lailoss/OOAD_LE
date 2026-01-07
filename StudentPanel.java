@@ -89,17 +89,24 @@ public class StudentPanel extends JFrame {
         formPanel.add(infoPanel);
         
         // ========== BUTTON PANEL ==========
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JButton submitBtn = new JButton("Submit Registration");
         submitBtn.setFont(new Font("Arial", Font.BOLD, 14));
-        submitBtn.setBackground(new Color(70, 130, 180)); // Steel blue
+        submitBtn.setBackground(new Color(70, 130, 180));
         submitBtn.setForeground(Color.WHITE);
         
         JButton clearBtn = new JButton("Clear Form");
         clearBtn.setFont(new Font("Arial", Font.PLAIN, 12));
         
+        // LOGOUT BUTTON
+        JButton logoutBtn = new JButton("Logout");
+        logoutBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        logoutBtn.setBackground(new Color(220, 80, 60));
+        logoutBtn.setForeground(Color.WHITE);
+        
         buttonPanel.add(submitBtn);
         buttonPanel.add(clearBtn);
+        buttonPanel.add(logoutBtn);
         
         // ========== ASSEMBLE MAIN PANEL ==========
         mainPanel.add(headerPanel, BorderLayout.NORTH);
@@ -138,6 +145,17 @@ public class StudentPanel extends JFrame {
             typeCombo.setSelectedIndex(0);
             fileLabel.setText("No file selected");
             fileLabel.setForeground(Color.GRAY);
+        });
+        
+        // Logout Button
+        logoutBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(this, 
+                "Return to login page?", "Logout", 
+                JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                dispose();
+                new LoginFrame().setVisible(true);
+            }
         });
         
         // Center window

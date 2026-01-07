@@ -1,0 +1,12 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch LoginFrame",
+            "request": "launch",
+            "mainClass": "views.LoginFrame",
+            "projectName": "OOAD_LE"
+        }
+    ]
+}

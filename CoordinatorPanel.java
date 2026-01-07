@@ -1,7 +1,3 @@
-package views;
-
-import models.*;
-import utils.Database;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Date;
@@ -16,7 +12,6 @@ public class CoordinatorPanel extends JFrame {
         setSize(700, 600);
         setLayout(new BorderLayout(10, 10));
         
-        // North Panel - Session Creation
         JPanel northPanel = new JPanel(new GridLayout(4, 2, 10, 10));
         northPanel.setBorder(BorderFactory.createTitledBorder("Create New Session"));
         
@@ -35,7 +30,6 @@ public class CoordinatorPanel extends JFrame {
         JButton createSessionBtn = new JButton("Create Session");
         northPanel.add(createSessionBtn);
         
-        // Center Panel - Awards
         JPanel centerPanel = new JPanel(new GridLayout(2, 2, 10, 10));
         centerPanel.setBorder(BorderFactory.createTitledBorder("Award Management"));
         
@@ -45,24 +39,21 @@ public class CoordinatorPanel extends JFrame {
         JButton bestPosterBtn = new JButton("Best Poster Award");
         centerPanel.add(bestPosterBtn);
         
-        JButton peopleChoiceBtn = new JButton("People's Choice");
-        centerPanel.add(peopleChoiceBtn);
-        
         JButton generateReportBtn = new JButton("Generate Report");
         centerPanel.add(generateReportBtn);
         
-        // South Panel - Output
+        JButton viewAllBtn = new JButton("View All Data");
+        centerPanel.add(viewAllBtn);
+        
         outputArea = new JTextArea(10, 40);
         outputArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(outputArea);
         scrollPane.setBorder(BorderFactory.createTitledBorder("Output"));
         
-        // Add all panels
         add(northPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
         add(scrollPane, BorderLayout.SOUTH);
         
-        // Actions
         createSessionBtn.addActionListener(e -> {
             Session session = new Session(
                 sessionIdField.getText(),
@@ -70,30 +61,64 @@ public class CoordinatorPanel extends JFrame {
                 venueField.getText(),
                 (String) typeCombo.getSelectedItem()
             );
-            Database.addSession(session);
-            outputArea.append("Session created: " + session + "\n");
+            LoginFrame.allSessions.add(session);
+            outputArea.append("✓ Session created: " + session + "\n");
         });
         
         bestOralBtn.addActionListener(e -> {
-            for (Session s : Database.sessions) {
+            outputArea.append("\n--- Best Oral Award Calculation ---\n");
+            for (Session s : LoginFrame.allSessions) {
                 if (s.getType().equals("Oral")) {
                     Award award = new Award("Best Oral", s);
-                    Student winner = award.calculateWinner();
+                    Student winner = award.calculateWinner(LoginFrame.allEvaluations);
                     if (winner != null) {
-                        outputArea.append("Best Oral Award: " + winner.getName() + "\n");
+                        outputArea.append("🏆 Best Oral: " + winner.getName() + "\n");
+                    } else {
+                        outputArea.append("No students in oral sessions\n");
                     }
                 }
             }
         });
         
         bestPosterBtn.addActionListener(e -> {
-            outputArea.append("Calculating Best Poster Award...\n");
+            outputArea.append("\n--- Best Poster Award Calculation ---\n");
+            for (Session s : LoginFrame.allSessions) {
+                if (s.getType().equals("Poster")) {
+                    Award award = new Award("Best Poster", s);
+                    Student winner = award.calculateWinner(LoginFrame.allEvaluations);
+                    if (winner != null) {
+                        outputArea.append("🏆 Best Poster: " + winner.getName() + "\n");
+                    } else {
+                        outputArea.append("No students in poster sessions\n");
+                    }
+                }
+            }
         });
         
         generateReportBtn.addActionListener(e -> {
-            Report report = new Report();
-            report.generateSummary();
-            outputArea.append("Report generated at: " + new Date() + "\n");
+            outputArea.append("\n--- Report Generated ---\n");
+            outputArea.append("Total Users: " + LoginFrame.allUsers.size() + "\n");
+            outputArea.append("Total Sessions: " + LoginFrame.allSessions.size() + "\n");
+            outputArea.append("Total Evaluations: " + LoginFrame.allEvaluations.size() + "\n");
+            outputArea.append("Report Time: " + new Date() + "\n");
+        });
+        
+        viewAllBtn.addActionListener(e -> {
+            StringBuilder sb = new StringBuilder();
+            sb.append("\n=== ALL SYSTEM DATA ===\n");
+            sb.append("Users (").append(LoginFrame.allUsers.size()).append("):\n");
+            for (Object u : LoginFrame.allUsers) {
+                sb.append("  - ").append(u).append("\n");
+            }
+            sb.append("\nSessions (").append(LoginFrame.allSessions.size()).append("):\n");
+            for (Session s : LoginFrame.allSessions) {
+                sb.append("  - ").append(s).append("\n");
+            }
+            sb.append("\nEvaluations (").append(LoginFrame.allEvaluations.size()).append("):\n");
+            for (Evaluation ev : LoginFrame.allEvaluations) {
+                sb.append("  - ").append(ev).append("\n");
+            }
+            JOptionPane.showMessageDialog(this, sb.toString());
         });
         
         setLocationRelativeTo(null);

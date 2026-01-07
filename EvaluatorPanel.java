@@ -1,9 +1,3 @@
-package views;
-
-import models.Evaluator;
-import models.Student;
-import models.Evaluation;
-import utils.Database;
 import javax.swing.*;
 import java.awt.*;
 import java.util.List;
@@ -20,13 +14,11 @@ public class EvaluatorPanel extends JFrame {
         setSize(600, 500);
         setLayout(new GridLayout(8, 2, 10, 10));
         
-        // Student selection
         add(new JLabel("Select Student:"));
         studentCombo = new JComboBox<>();
         loadStudents();
         add(studentCombo);
         
-        // Rubric scores with JSpinner (1-10)
         add(new JLabel("Problem Clarity (1-10):"));
         claritySpinner = new JSpinner(new SpinnerNumberModel(5, 1, 10, 1));
         add(claritySpinner);
@@ -43,19 +35,16 @@ public class EvaluatorPanel extends JFrame {
         presSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 10, 1));
         add(presSpinner);
         
-        // Comments
         add(new JLabel("Comments:"));
         commentArea = new JTextArea(3, 20);
         add(new JScrollPane(commentArea));
         
-        // Buttons
         JButton evaluateBtn = new JButton("Submit Evaluation");
         add(evaluateBtn);
         
-        JButton viewBtn = new JButton("View Assigned Sessions");
+        JButton viewBtn = new JButton("View My Evaluations");
         add(viewBtn);
         
-        // Actions
         evaluateBtn.addActionListener(e -> {
             Student selected = (Student) studentCombo.getSelectedItem();
             if (selected != null) {
@@ -66,25 +55,37 @@ public class EvaluatorPanel extends JFrame {
                 eval.setPresentation((int) presSpinner.getValue());
                 eval.setComment(commentArea.getText());
                 
-                Database.addEvaluation(eval);
+                evaluator.addEvaluation(eval);
+                LoginFrame.allEvaluations.add(eval);
+                
                 JOptionPane.showMessageDialog(this, 
                     "Evaluation submitted!\n" +
-                    "Total Score: " + eval.getTotal());
+                    "Student: " + selected.getName() + "\n" +
+                    "Total Score: " + eval.getTotal() + "/40");
             }
         });
         
         viewBtn.addActionListener(e -> {
-            JOptionPane.showMessageDialog(this,
-                "Assigned Sessions: " + evaluator.getAssignedSessions().size());
+            StringBuilder sb = new StringBuilder();
+            sb.append("My Evaluations:\n");
+            for (Evaluation eval : evaluator.getEvaluations()) {
+                sb.append("- ").append(eval.getStudent().getName())
+                  .append(": ").append(eval.getTotal()).append("/40\n");
+            }
+            JOptionPane.showMessageDialog(this, sb.toString());
         });
         
         setLocationRelativeTo(null);
     }
     
     private void loadStudents() {
-        List<Student> students = Database.getStudents();
-        for (Student s : students) {
-            studentCombo.addItem(s);
+        for (Object obj : LoginFrame.allUsers) {
+            if (obj instanceof Student) {
+                studentCombo.addItem((Student) obj);
+            }
+        }
+        if (studentCombo.getItemCount() == 0) {
+            studentCombo.addItem(new Student("S001", "Sample Student"));
         }
     }
 }

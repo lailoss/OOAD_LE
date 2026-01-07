@@ -1,11 +1,7 @@
-package models;
-
 import java.util.List;
-import utils.Database;
 
 public class Award {
-    private String awardId;
-    private String awardType; // "Best Oral", "Best Poster", "People's Choice"
+    private String awardType;
     private Student winner;
     private Session session;
     
@@ -14,13 +10,13 @@ public class Award {
         this.session = session;
     }
     
-    public Student calculateWinner() {
+    public Student calculateWinner(List<Evaluation> allEvaluations) {
         List<Student> students = session.getStudents();
         Student bestStudent = null;
         double bestScore = 0;
         
         for (Student s : students) {
-            double avgScore = calculateAverageScore(s);
+            double avgScore = calculateAverageScore(s, allEvaluations);
             if (avgScore > bestScore) {
                 bestScore = avgScore;
                 bestStudent = s;
@@ -31,12 +27,11 @@ public class Award {
         return bestStudent;
     }
     
-    private double calculateAverageScore(Student student) {
-        // Simplified - calculate from evaluations
+    private double calculateAverageScore(Student student, List<Evaluation> allEvaluations) {
         int total = 0;
         int count = 0;
         
-        for (models.Evaluation eval : Database.evaluations) {
+        for (Evaluation eval : allEvaluations) {
             if (eval.getStudent().equals(student)) {
                 total += eval.getTotal();
                 count++;
@@ -46,7 +41,11 @@ public class Award {
         return count > 0 ? (double) total / count : 0;
     }
     
-    // Getters
     public Student getWinner() { return winner; }
     public String getAwardType() { return awardType; }
+    
+    @Override
+    public String toString() {
+        return awardType + ": " + (winner != null ? winner.getName() : "No winner");
+    }
 }

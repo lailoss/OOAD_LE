@@ -1,5 +1,3 @@
-package models;
-
 public abstract class User {
     protected String userId;
     protected String name;
@@ -17,5 +15,10 @@ public abstract class User {
     
     public void login() {
         System.out.println(role + " " + name + " logged in.");
+    }
+    
+    @Override
+    public String toString() {
+        return name + " (" + role + ")";
     }
 }

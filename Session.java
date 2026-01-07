@@ -1,5 +1,3 @@
-package models;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,7 +6,7 @@ public class Session {
     private String sessionId;
     private Date date;
     private String venue;
-    private String type; // "Oral" or "Poster"
+    private String type;
     private List<Student> students;
     private List<Evaluator> evaluators;
     
@@ -29,7 +27,6 @@ public class Session {
         evaluators.add(evaluator);
     }
     
-    // Getters
     public String getSessionId() { return sessionId; }
     public Date getDate() { return date; }
     public String getVenue() { return venue; }

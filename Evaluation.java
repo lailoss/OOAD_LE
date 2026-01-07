@@ -1,7 +1,4 @@
-package models;
-
 public class Evaluation {
-    private String evaluationId;
     private Student student;
     private Evaluator evaluator;
     private int problemClarity;
@@ -19,7 +16,6 @@ public class Evaluation {
         return problemClarity + methodology + results + presentation;
     }
     
-    // Getters and setters
     public void setProblemClarity(int score) { 
         if (score >= 1 && score <= 10) this.problemClarity = score; 
     }
@@ -37,4 +33,10 @@ public class Evaluation {
     public Student getStudent() { return student; }
     public int getTotal() { return getTotalScore(); }
     public String getComment() { return comment; }
+    public Evaluator getEvaluator() { return evaluator; }
+    
+    @Override
+    public String toString() {
+        return student.getName() + ": " + getTotalScore() + "/40";
+    }
 }

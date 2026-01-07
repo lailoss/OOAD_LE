@@ -1,8 +1,3 @@
-package views;
-
-import models.Student;
-import models.Submission;
-import utils.Database;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Date;
@@ -16,7 +11,6 @@ public class StudentPanel extends JFrame {
         setSize(500, 400);
         setLayout(new GridLayout(6, 2, 10, 10));
         
-        // Form fields
         JLabel titleLabel = new JLabel("Research Title:");
         JTextField titleField = new JTextField();
         
@@ -35,7 +29,6 @@ public class StudentPanel extends JFrame {
         
         JButton submitBtn = new JButton("Submit Registration");
         
-        // Add components
         add(titleLabel); add(titleField);
         add(supervisorLabel); add(supervisorField);
         add(abstractLabel); add(abstractScroll);
@@ -44,10 +37,9 @@ public class StudentPanel extends JFrame {
         add(uploadBtn);
         add(new JLabel("File:"));
         add(fileLabel);
-        add(new JLabel()); // empty cell
+        add(new JLabel());
         add(submitBtn);
         
-        // Upload action (Java Swing JFileChooser)
         uploadBtn.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Select Presentation File");
@@ -57,21 +49,17 @@ public class StudentPanel extends JFrame {
             }
         });
         
-        // Submit action
         submitBtn.addActionListener(e -> {
-            // Save student data
             student.setResearchTitle(titleField.getText());
             student.setSupervisor(supervisorField.getText());
             student.setAbstractText(abstractArea.getText());
             student.setPresentationType((String) typeCombo.getSelectedItem());
             
-            // Create submission
             if (!fileLabel.getText().equals("No file selected")) {
                 Submission sub = new Submission(fileLabel.getText(), new Date());
                 student.setSubmission(sub);
             }
             
-            // Show confirmation
             JOptionPane.showMessageDialog(this, 
                 "Registration Successful!\n" +
                 "Title: " + student.getResearchTitle() + "\n" +

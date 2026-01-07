@@ -1,11 +1,12 @@
-package views;
-
-import models.*;
-import utils.Database;
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class LoginFrame extends JFrame {
+    public static List<Object> allUsers = new ArrayList<>();
+    public static List<Session> allSessions = new ArrayList<>();
+    public static List<Evaluation> allEvaluations = new ArrayList<>();
     
     public LoginFrame() {
         setTitle("Seminar Management System - Login");
@@ -13,7 +14,6 @@ public class LoginFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(5, 2, 10, 10));
         
-        // UI Components
         add(new JLabel("User ID:"));
         JTextField idField = new JTextField();
         add(idField);
@@ -24,55 +24,47 @@ public class LoginFrame extends JFrame {
         
         add(new JLabel("Role:"));
         String[] roles = {"Student", "Evaluator", "Coordinator"};
-        JComboBox<String> roleComboBox = new JComboBox<>(roles);
-        add(roleComboBox);
+        JComboBox<String> roleCombo = new JComboBox<>(roles);
+        add(roleCombo);
         
-        add(new JLabel()); // Empty cell
+        add(new JLabel());
         JButton loginBtn = new JButton("Login");
         add(loginBtn);
         
-        // Login Action
         loginBtn.addActionListener(e -> {
             String userId = idField.getText();
             String name = nameField.getText();
-            String role = (String) roleComboBox.getSelectedItem();
+            String role = (String) roleCombo.getSelectedItem();
             
             if (userId.isEmpty() || name.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please fill all fields!");
                 return;
             }
             
-            // Create user based on role
             switch (role) {
                 case "Student":
                     Student student = new Student(userId, name);
-                    Database.addStudent(student);
+                    allUsers.add(student);
                     new StudentPanel(student).setVisible(true);
                     break;
-                    
                 case "Evaluator":
                     Evaluator evaluator = new Evaluator(userId, name);
-                    Database.evaluators.add(evaluator);
+                    allUsers.add(evaluator);
                     new EvaluatorPanel(evaluator).setVisible(true);
                     break;
-                    
                 case "Coordinator":
                     Coordinator coordinator = new Coordinator(userId, name);
-                    Database.coordinators.add(coordinator);
+                    allUsers.add(coordinator);
                     new CoordinatorPanel(coordinator).setVisible(true);
                     break;
             }
-            
-            dispose(); // Close login window
+            dispose();
         });
         
-        setLocationRelativeTo(null); // Center window
+        setLocationRelativeTo(null);
     }
     
     public static void main(String[] args) {
-        // Java Swing: Run in Event Dispatch Thread
-        SwingUtilities.invokeLater(() -> {
-            new LoginFrame().setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new LoginFrame().setVisible(true));
     }
 }

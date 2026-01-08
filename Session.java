@@ -27,6 +27,7 @@ public class Session {
         evaluators.add(evaluator);
     }
     
+    // GETTERS (MUST HAVE THESE!)
     public String getSessionId() { return sessionId; }
     public Date getDate() { return date; }
     public String getVenue() { return venue; }
@@ -36,6 +37,6 @@ public class Session {
     
     @Override
     public String toString() {
-        return sessionId + " - " + type + " at " + venue;
+        return sessionId + " - " + type + " at " + venue + " (" + students.size() + " students)";
     }
 }

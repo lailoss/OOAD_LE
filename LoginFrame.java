@@ -7,6 +7,7 @@ public class LoginFrame extends JFrame {
     public static List<Object> allUsers = new ArrayList<>();
     public static List<Session> allSessions = new ArrayList<>();
     public static List<Evaluation> allEvaluations = new ArrayList<>();
+    public static List<Award> allAwards = new ArrayList<>();  // NEW: Store awards
     
     public LoginFrame() {
         setTitle("Seminar Management System - Login");

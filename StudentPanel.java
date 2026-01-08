@@ -98,6 +98,12 @@ public class StudentPanel extends JFrame {
         JButton clearBtn = new JButton("Clear Form");
         clearBtn.setFont(new Font("Arial", Font.PLAIN, 12));
         
+        // VIEW AWARDS BUTTON
+        JButton viewAwardsBtn = new JButton("View My Awards");
+        viewAwardsBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        viewAwardsBtn.setBackground(new Color(255, 215, 0)); // Gold
+        viewAwardsBtn.setForeground(Color.BLACK);
+        
         // LOGOUT BUTTON
         JButton logoutBtn = new JButton("Logout");
         logoutBtn.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -106,6 +112,7 @@ public class StudentPanel extends JFrame {
         
         buttonPanel.add(submitBtn);
         buttonPanel.add(clearBtn);
+        buttonPanel.add(viewAwardsBtn);
         buttonPanel.add(logoutBtn);
         
         // ========== ASSEMBLE MAIN PANEL ==========
@@ -147,6 +154,11 @@ public class StudentPanel extends JFrame {
             fileLabel.setForeground(Color.GRAY);
         });
         
+        // View Awards Button - FIXED
+        viewAwardsBtn.addActionListener(e -> {
+            showStudentAwards();
+        });
+        
         // Logout Button
         logoutBtn.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this, 
@@ -160,6 +172,11 @@ public class StudentPanel extends JFrame {
         
         // Center window
         setLocationRelativeTo(null);
+        
+        // Check for awards notification on login
+        SwingUtilities.invokeLater(() -> {
+            checkForAwardsNotification();
+        });
     }
     
     // Helper method to create labeled text fields
@@ -232,5 +249,91 @@ public class StudentPanel extends JFrame {
         
         JOptionPane.showMessageDialog(this, message, "Success", 
             JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+    // ========== FIXED: Show student's awards ==========
+    private void showStudentAwards() {
+        // Debug info
+        System.out.println("=== Checking awards for student: " + student.getName() + " ===");
+        System.out.println("Total awards in system: " + LoginFrame.allAwards.size());
+        
+        StringBuilder awardsMessage = new StringBuilder();
+        awardsMessage.append("<html><div style='text-align: center;'>");
+        awardsMessage.append("<h2>🎖️ My Awards</h2>");
+        
+        int awardCount = 0;
+        
+        // Check all awards
+        for (int i = 0; i < LoginFrame.allAwards.size(); i++) {
+            Award award = LoginFrame.allAwards.get(i);
+            
+            // Debug each award
+            System.out.println("Award " + i + ": " + award.getAwardType());
+            System.out.println("  Winner: " + (award.getWinner() != null ? award.getWinner().getName() : "NULL"));
+            
+            // Check if this award belongs to current student
+            if (award.getWinner() != null && award.getWinner().equals(student)) {
+                System.out.println("  >>> FOUND AWARD FOR THIS STUDENT!");
+                awardCount++;
+                
+                awardsMessage.append("<div style='background-color: #FFF8DC; padding: 10px; margin: 10px; border-radius: 5px;'>");
+                awardsMessage.append("<h3 style='color: #D4AF37;'>🏆 ").append(award.getAwardType()).append("</h3>");
+                awardsMessage.append("<b>Session:</b> ").append(award.getSession().getSessionId()).append("<br>");
+                awardsMessage.append("<b>Date Awarded:</b> ").append(new Date()).append("<br>");
+                awardsMessage.append("<b>Method:</b> ").append(award.isManual() ? "Manual Selection" : "Auto-Calculated").append("<br>");
+                awardsMessage.append("</div><br>");
+            }
+        }
+        
+        if (awardCount == 0) {
+            awardsMessage.append("<p style='color: gray; font-size: 14px;'>")
+                       .append("No awards received yet.<br>")
+                       .append("Submit great research to win awards!</p>");
+        } else {
+            awardsMessage.append("<p style='color: green; font-weight: bold; font-size: 16px;'>")
+                       .append("🎉 Congratulations! You have ").append(awardCount)
+                       .append(" award").append(awardCount > 1 ? "s" : "").append("!</p>");
+        }
+        
+        awardsMessage.append("</div></html>");
+        
+        JOptionPane.showMessageDialog(this, 
+            awardsMessage.toString(), 
+            "My Awards - " + student.getName(), 
+            JOptionPane.INFORMATION_MESSAGE);
+        
+        System.out.println("Student " + student.getName() + " has " + awardCount + " award(s)");
+    }
+    
+    // Check for awards notification on login
+    private void checkForAwardsNotification() {
+        int awardCount = 0;
+        String firstAwardType = "";
+        
+        for (Award award : LoginFrame.allAwards) {
+            if (award.getWinner() != null && award.getWinner().equals(student)) {
+                awardCount++;
+                if (firstAwardType.isEmpty()) {
+                    firstAwardType = award.getAwardType();
+                }
+            }
+        }
+        
+        if (awardCount > 0) {
+            String message = String.format(
+                "<html><div style='text-align: center;'>" +
+                "<h2>🎉 Congratulations! 🎉</h2>" +
+                "<p>You have received " + awardCount + " award" + (awardCount > 1 ? "s" : "") + "!</p>" +
+                "<h3>🏆 %s</h3>" +
+                "<p>Click 'View My Awards' to see all your achievements.</p>" +
+                "</div></html>",
+                firstAwardType
+            );
+            
+            JOptionPane.showMessageDialog(this, 
+                message, 
+                "Award Received!", 
+                JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 }
